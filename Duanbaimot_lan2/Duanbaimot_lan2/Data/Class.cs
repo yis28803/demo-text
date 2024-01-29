@@ -2,14 +2,9 @@
 {
     public class Class
     {
-        public int ClassID { get; set; }
-        public string ClassName { get; set; }
-        public string Schedule { get; set; }
-        // Other properties...
-        public string ApplicationUserId { get; set; }
-        public ApplicationUser ApplicationUser { get; set; }
-        public ICollection<Grade> Grades { get; set; }
-        public ICollection<Enrollment> Enrollments { get; set; }
-        public ICollection<TeachingSchedule> TeachingSchedules { get; set; }
+        public int ClassId { get; set; }  // Khóa chính
+        public string? ClassName { get; set; }
+        public string? ClassDescription { get; set; }
+        // Thêm các trường thông tin khác nếu cần
     }
 }

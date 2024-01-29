@@ -1,139 +1,181 @@
-﻿using Duanbaimot_lan2.Data;
+﻿using Duanbaimot_lan2.Helpers;
 using Duanbaimot_lan2.Models;
-using Duanbaimot_lan2.Repositories;
 using Duanbaimot_lan2.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace Duanbaimot_lan2.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class AccountsController : ControllerBase
     {
-        private readonly IAccountRepository accountRepo;
-        private readonly UserManager<ApplicationUser> userManager;
-        private readonly SignInManager<ApplicationUser> signInManager;
-        private readonly ISendMailService sendMailService; // Thêm dòng này
+        private readonly IAccountServices accountRepository;
+        private readonly ILogger<AccountsController> logger;
 
-        public AccountsController(IAccountRepository repo, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ISendMailService sendMailService)
+        public AccountsController(IAccountServices accountRepository, ILogger<AccountsController> logger)
         {
-            accountRepo = repo;
-            this.userManager = userManager;
-            this.signInManager = signInManager;
-            this.sendMailService = sendMailService; // Thêm dòng này
+            this.accountRepository = accountRepository;
+            this.logger = logger;
         }
 
-        [HttpPost("SignUp")]
-        public async Task<IActionResult> SignUp(SignUpModel signUpModel)
+        [HttpPost("signin")]
+        public async Task<IActionResult> SignIn([FromBody] SignInModel model)
         {
-            var result = await accountRepo.SignUpAsync(signUpModel);
-            if (result.Succeeded)
+            try
             {
-                // Gửi email sau khi đăng ký thành công
-                var mailContent = new MailContent
+                var token = await accountRepository.SignInAsync(model);
+                return Ok(new { Token = token });
+            }
+            catch (NotFoundException ex)
+            {
+                logger.LogError(ex.Message);
+                return NotFound(new { Error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+                return StatusCode(500, new { Error = "Internal Server Error" });
+            }
+        }
+
+        [HttpPost("signup")]
+        public async Task<IActionResult> SignUp([FromBody] SignUpModel model)
+        {
+            try
+            {
+                var result = await accountRepository.SignUpAsync(model);
+
+                if (result.Succeeded)
                 {
-                    To = signUpModel.Email,
-                    Subject = "Welcome to our application",
-                    Body = "Thank you for signing up!"
-                };
-
-                await sendMailService.SendMail(mailContent);
-
-                return Ok(new { Message = "Sign up successful" });
+                    return Ok(new { Message = "Sign up successful" });
+                }
+                else
+                {
+                    return BadRequest(new { Error = "Sign up failed", Errors = result.Errors });
+                }
             }
-
-            // Include more details in the response body for error cases
-            return BadRequest(new { Message = "Sign up failed", Errors = result.Errors });
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+                return StatusCode(500, new { Error = "Internal Server Error" });
+            }
         }
 
-        [HttpPost("SignIn")]
-        public async Task<IActionResult> SignIn(SignInModel signInModel)
-        {
-            var result = await accountRepo.SignInAsync(signInModel);
-
-            if (string.IsNullOrEmpty(result))
-            {
-                return Unauthorized();
-            }
-
-            // Gửi email sau khi đăng nhập thành công
-            var mailContent = new MailContent
-            {
-                To = signInModel.Email,
-                Subject = "Login Notification",
-                Body = "You have successfully logged in."
-            };
-
-            await sendMailService.SendMail(mailContent);
-
-            return Ok(result);
-        }
-
-        [HttpPost("SignOut")]
-        [Authorize] // Đảm bảo chỉ có người dùng đã đăng nhập mới có thể đăng xuất
+        [HttpPost("signout")]
         public async Task<IActionResult> SignOut()
         {
-            await accountRepo.SignOutAsync();
-            return Ok(new { Message = "Sign out successful" });
+            try
+            {
+                await accountRepository.SignOutAsync();
+                return Ok(new { Message = "Sign out successful" });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+                return StatusCode(500, new { Error = "Internal Server Error" });
+            }
         }
 
-
-
-
-
-
-
-        [HttpPost("ForgotPassword")]
-        public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model)
+        [HttpPost("resetpassword/request")]
+        public async Task<IActionResult> RequestPasswordReset([FromBody] ResetPasswordRequestModel model)
         {
-            var resetToken = await accountRepo.GeneratePasswordResetTokenAsync(model.Email);
-
-            if (resetToken != null)
+            try
             {
-                // Gửi email chứa đường dẫn để đặt lại mật khẩu
-                var resetUrl = $"{Request.Scheme}://{Request.Host}/api/Accounts/ResetPassword?email={model.Email}&token={resetToken}";
+                var resetToken = await accountRepository.GeneratePasswordResetTokenAsync(model.Email);
 
-                var mailContent = new MailContent
+                if (resetToken != null)
                 {
-                    To = model.Email,
-                    Subject = "Reset Password",
-                    Body = $"Please click the following link to reset your password: {resetUrl}"
-                };
+                    // Gửi email chứa đường dẫn để đặt lại mật khẩu
+                    var resetUrl = $"{Request.Scheme}://{Request.Host}/api/Accounts/ResetPassword?email={model.Email}&token={resetToken}";
 
-                await sendMailService.SendMail(mailContent);
+                    var mailContent = new MailContent
+                    {
+                        To = model.Email,
+                        Subject = "Reset Password",
+                        Body = $"Please click the following link to reset your password: {resetUrl}"
+                    };
 
-                return Ok(new { Message = "Reset password link has been sent to your email." });
+                    // Gọi service để gửi email
+                    await accountRepository.SendMail(mailContent);
+
+                    return Ok(new { Message = "Reset password link has been sent to your email." });
+                }
+
+                return BadRequest(new { Message = "Failed to send reset password link." });
             }
-
-            return BadRequest(new { Message = "Failed to send reset password link." });
+            catch (NotFoundException ex)
+            {
+                logger.LogError(ex.Message);
+                return NotFound(new { Error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+                return StatusCode(500, new { Error = "Internal Server Error" });
+            }
         }
 
-        [HttpPost("ResetPassword")]
-        public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
+        [HttpPost("resetpassword")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
         {
-            var user = await userManager.FindByEmailAsync(model.Email);
-
-            if (user == null)
+            try
             {
-                return NotFound(new { Message = "User not found." });
+                await accountRepository.ResetPasswordAsync(model);
+                return Ok(new { Message = "Password reset successful" });
             }
-
-            var result = await userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
-
-            if (result.Succeeded)
+            catch (NotFoundException ex)
             {
-                return Ok(new { Message = "Password reset successfully." });
+                logger.LogError(ex.Message);
+                return NotFound(new { Error = ex.Message });
             }
-
-            return BadRequest(new { Message = "Failed to reset password.", Errors = result.Errors });
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+                return StatusCode(500, new { Error = "Internal Server Error" });
+            }
         }
 
+        [HttpGet("userinfo/{userId}")]
+        public async Task<IActionResult> GetUserInfo(string userId)
+        {
+            try
+            {
+                var userInfo = await accountRepository.GetUserInfoAsync(userId);
+                return Ok(userInfo);
+            }
+            catch (NotFoundException ex)
+            {
+                logger.LogError(ex.Message);
+                return NotFound(new { Error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+                return StatusCode(500, new { Error = "Internal Server Error" });
+            }
+        }
 
-
-
+        [HttpPost("updateuserrole")]
+        public async Task<IActionResult> UpdateUserRole([FromBody] UpdateUserRoleModel model)
+        {
+            try
+            {
+                await accountRepository.UpdateUserRoleAsync(model.UserId, model.NewRole);
+                return Ok(new { Message = "User role updated successfully" });
+            }
+            catch (NotFoundException ex)
+            {
+                logger.LogError(ex.Message);
+                return NotFound(new { Error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+                return StatusCode(500, new { Error = "Internal Server Error" });
+            }
+        }
 
     }
-
 }

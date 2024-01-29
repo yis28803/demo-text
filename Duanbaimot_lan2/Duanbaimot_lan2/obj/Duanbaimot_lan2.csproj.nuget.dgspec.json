@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\BaNghia\\training_ppx_back-end\\baimot_lan2\\Duanbaimot_lan2\\Duanbaimot_lan2\\Duanbaimot_lan2.csproj": {}
+    "C:\\BaNghia\\training_ppx_back-end\\baimot_lan3\\Duanbaimot_lan2\\Duanbaimot_lan2\\Duanbaimot_lan2.csproj": {}
   },
   "projects": {
-    "C:\\BaNghia\\training_ppx_back-end\\baimot_lan2\\Duanbaimot_lan2\\Duanbaimot_lan2\\Duanbaimot_lan2.csproj": {
+    "C:\\BaNghia\\training_ppx_back-end\\baimot_lan3\\Duanbaimot_lan2\\Duanbaimot_lan2\\Duanbaimot_lan2.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\BaNghia\\training_ppx_back-end\\baimot_lan2\\Duanbaimot_lan2\\Duanbaimot_lan2\\Duanbaimot_lan2.csproj",
+        "projectUniqueName": "C:\\BaNghia\\training_ppx_back-end\\baimot_lan3\\Duanbaimot_lan2\\Duanbaimot_lan2\\Duanbaimot_lan2.csproj",
         "projectName": "Duanbaimot_lan2",
-        "projectPath": "C:\\BaNghia\\training_ppx_back-end\\baimot_lan2\\Duanbaimot_lan2\\Duanbaimot_lan2\\Duanbaimot_lan2.csproj",
+        "projectPath": "C:\\BaNghia\\training_ppx_back-end\\baimot_lan3\\Duanbaimot_lan2\\Duanbaimot_lan2\\Duanbaimot_lan2.csproj",
         "packagesPath": "C:\\Users\\Nghia\\.nuget\\packages\\",
-        "outputPath": "C:\\BaNghia\\training_ppx_back-end\\baimot_lan2\\Duanbaimot_lan2\\Duanbaimot_lan2\\obj\\",
+        "outputPath": "C:\\BaNghia\\training_ppx_back-end\\baimot_lan3\\Duanbaimot_lan2\\Duanbaimot_lan2\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Nghia\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -73,6 +73,14 @@
             "MimeKit": {
               "target": "Package",
               "version": "[4.3.0, )"
+            },
+            "MongoDB.Bson": {
+              "target": "Package",
+              "version": "[2.23.1, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
