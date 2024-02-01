@@ -14,7 +14,6 @@ namespace Duanbaimot_lan2.Models
         public string Password { get; set; } = null!;
         [Required]
         public string ConfirmPassword { get; set; } = null!;
-        public string? ClassName { get; set; }
         public string? StudentCode { get; set; }
     }
 }

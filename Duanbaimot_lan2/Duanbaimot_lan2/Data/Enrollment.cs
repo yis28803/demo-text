@@ -6,6 +6,7 @@
         public int StudentId { get; set; }    // Khóa ngoại liên kết với bảng Students
         public int ClassId { get; set; }     // Khóa ngoại liên kết với bảng Courses
         public DateTime EnrollmentDate { get; set; }
+        public bool IsPaid { get; set; }  // Thêm trường IsPaid
         // Thêm các trường thông tin khác nếu cần
         public Class? Class { get; set; }
         public Student? Student { get; set; }  // Thêm thuộc tính Student

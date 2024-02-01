@@ -98,20 +98,23 @@ namespace Duanbaimot_lan2.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Duanbaimot_lan2.Data.Course", b =>
+            modelBuilder.Entity("Duanbaimot_lan2.Data.Class", b =>
                 {
-                    b.Property<int>("CourseId")
+                    b.Property<int>("ClassId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CourseId"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ClassId"), 1L, 1);
 
-                    b.Property<string>("CourseName")
+                    b.Property<string>("ClassDescription")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("CourseId");
+                    b.Property<string>("ClassName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("Courses");
+                    b.HasKey("ClassId");
+
+                    b.ToTable("Classes");
                 });
 
             modelBuilder.Entity("Duanbaimot_lan2.Data.Enrollment", b =>
@@ -122,22 +125,57 @@ namespace Duanbaimot_lan2.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EnrollmentId"), 1L, 1);
 
-                    b.Property<int>("CourseId")
+                    b.Property<int>("ClassId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("EnrollmentDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
 
                     b.Property<int>("StudentId")
                         .HasColumnType("int");
 
                     b.HasKey("EnrollmentId");
 
-                    b.HasIndex("CourseId");
+                    b.HasIndex("ClassId");
 
                     b.HasIndex("StudentId");
 
                     b.ToTable("Enrollments");
+                });
+
+            modelBuilder.Entity("Duanbaimot_lan2.Data.Fee", b =>
+                {
+                    b.Property<int>("FeeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FeeId"), 1L, 1);
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FeeType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("FeeId");
+
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("Fees");
                 });
 
             modelBuilder.Entity("Duanbaimot_lan2.Data.Schedule", b =>
@@ -148,21 +186,26 @@ namespace Duanbaimot_lan2.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ScheduleId"), 1L, 1);
 
-                    b.Property<int>("CourseId")
+                    b.Property<int>("ClassId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("EndTime")
+                    b.Property<DateTime>("NgayHoc")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Location")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
 
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("ThangHoc")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ThuHoc")
+                        .HasColumnType("int");
 
                     b.HasKey("ScheduleId");
 
-                    b.HasIndex("CourseId");
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("StudentId");
 
                     b.ToTable("Schedules");
                 });
@@ -175,19 +218,17 @@ namespace Duanbaimot_lan2.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StudentId"), 1L, 1);
 
-                    b.Property<string>("ClassName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("StudentCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("StudentId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("Students");
                 });
@@ -327,9 +368,9 @@ namespace Duanbaimot_lan2.Migrations
 
             modelBuilder.Entity("Duanbaimot_lan2.Data.Enrollment", b =>
                 {
-                    b.HasOne("Duanbaimot_lan2.Data.Course", "Course")
+                    b.HasOne("Duanbaimot_lan2.Data.Class", "Class")
                         .WithMany()
-                        .HasForeignKey("CourseId")
+                        .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -339,29 +380,55 @@ namespace Duanbaimot_lan2.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Course");
+                    b.Navigation("Class");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("Duanbaimot_lan2.Data.Fee", b =>
+                {
+                    b.HasOne("Duanbaimot_lan2.Data.Class", "Class")
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Duanbaimot_lan2.Data.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Class");
 
                     b.Navigation("Student");
                 });
 
             modelBuilder.Entity("Duanbaimot_lan2.Data.Schedule", b =>
                 {
-                    b.HasOne("Duanbaimot_lan2.Data.Course", "Course")
+                    b.HasOne("Duanbaimot_lan2.Data.Class", "Class")
                         .WithMany()
-                        .HasForeignKey("CourseId")
+                        .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Course");
+                    b.HasOne("Duanbaimot_lan2.Data.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Class");
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("Duanbaimot_lan2.Data.Student", b =>
                 {
                     b.HasOne("Duanbaimot_lan2.Data.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithOne()
+                        .HasForeignKey("Duanbaimot_lan2.Data.Student", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("User");
                 });
