@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "tB8D9r1N52RXZrMz9UoVRgydwlICKxqMauUmuXu3T/evTUsIyGORKa4i4dtHmMAkYt5Ulu45tfz7rrU1yDb/ZA==",
+  "dgSpecHash": "xWlEblqEuciZDwPHsXWm0XK253FZyffKSNdg/mEhXK92TcZZ5fEhJjWFWXnFCclXregSD1LaUOyNaTF0L337RQ==",
   "success": true,
-  "projectFilePath": "C:\\BaNghia\\training_ppx_back-end\\baimot_lan3\\Duanbaimot_lan2\\Duanbaimot_lan2\\Duanbaimot_lan2.csproj",
+  "projectFilePath": "C:\\BaNghia\\training_ppx_back-end\\duan1\\Duanbaimot_lan2\\Duanbaimot_lan2\\Duanbaimot_lan2.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Nghia\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\Nghia\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",
