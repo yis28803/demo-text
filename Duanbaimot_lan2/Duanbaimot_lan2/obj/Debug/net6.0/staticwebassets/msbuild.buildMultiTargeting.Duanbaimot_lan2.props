@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\Duanbaimot_lan2.props" />
-</Project>
