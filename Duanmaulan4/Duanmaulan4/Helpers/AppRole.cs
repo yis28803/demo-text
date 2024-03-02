@@ -2,7 +2,7 @@
 {
     public static class AppRole
     {
-        public const string Admin = "Administrator";
+        public const string Admin = "Admin";
         public const string Lecturer = "Lecturer";
         public const string Student = "Student";
 

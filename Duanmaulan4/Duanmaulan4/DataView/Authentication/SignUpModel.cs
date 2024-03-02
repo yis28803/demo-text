@@ -31,6 +31,9 @@ namespace Duanmaulan4.DataView.Authentication
 
         [Required]
         public string? MaHocSinh { get; set; } // Thêm trường MaHocSinh
+        public string? HoTenPhuHuynh { get; set; }
+        public string? Diachi { get; set; }
+        public string? HinhAnh { get; set; }
     }
 
 

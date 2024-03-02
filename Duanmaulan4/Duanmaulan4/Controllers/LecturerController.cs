@@ -1,7 +1,11 @@
 ﻿using Duanmaulan4.DataView.Authentication;
 using Duanmaulan4.DataView.QuanlygiaovienModels;
+using Duanmaulan4.Helpers;
 using Duanmaulan4.Services;
+using Duanmaulan4.Services.PhanQuyen;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Duanmaulan4.Controllers
 {
@@ -19,6 +23,8 @@ namespace Duanmaulan4.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = PhanQuyenViewModel.Role_Admin + "," + PhanQuyenViewModel.Role_Accounting + "," + PhanQuyenViewModel.Role_Director + "," + PhanQuyenViewModel.Role_Registration)]
+        [CustomAuthorization(PhanQuyenViewModel.Claim_Viewalllecturerlists)]
         public async Task<ActionResult<List<LecturerViewModel>>> GetLecturers()
         {
             try
@@ -32,8 +38,27 @@ namespace Duanmaulan4.Controllers
                 return StatusCode(500, new { Error = "Có lỗi xảy ra" });
             }
         }
+        [HttpGet("search")]
+        [Authorize(Roles = PhanQuyenViewModel.Role_Admin + "," + PhanQuyenViewModel.Role_Accounting + "," + PhanQuyenViewModel.Role_Director + "," + PhanQuyenViewModel.Role_Registration)]
+        [CustomAuthorization(PhanQuyenViewModel.Claim_Viewalllecturerlists)]
+        public async Task<ActionResult<List<LecturerViewModel>>> GetLecturersAsync(string searchTerm)
+        {
+            try
+            {
+                var lecturers = await _lecturerServices.GetLecturersAsync(searchTerm);
+                return Ok(lecturers);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new { Error = "Có lỗi xảy ra" });
+            }
+        }
+
 
         [HttpPost("signuplecturer")]
+        [Authorize(Roles = PhanQuyenViewModel.Role_Admin + "," + PhanQuyenViewModel.Role_Accounting + "," + PhanQuyenViewModel.Role_Director + "," + PhanQuyenViewModel.Role_Registration)]
+        [CustomAuthorization(PhanQuyenViewModel.Claim_Adddeleteeditlecturers)]
         public async Task<IActionResult> SignUpLecturer([FromBody] SignUpModelGiaoVien model, int maMonHoc)
         {
             var result = await _lecturerServices.SignUpLecturerAsync(model, maMonHoc);
@@ -47,9 +72,11 @@ namespace Duanmaulan4.Controllers
                 return BadRequest(new { Error = "Đăng ký giáo viên thất bại", Errors = result.Errors });
             }
         }
-/*
+
         [HttpPut("{MaGiaoVien}")]
-        public async Task<IActionResult> UpdateLecturerDetail(int MaGiaoVien, [FromBody] LecturerUpdateModel model)
+        [Authorize(Roles = PhanQuyenViewModel.Role_Admin + "," + PhanQuyenViewModel.Role_Accounting + "," + PhanQuyenViewModel.Role_Director + "," + PhanQuyenViewModel.Role_Registration)]
+        [CustomAuthorization(PhanQuyenViewModel.Claim_Adddeleteeditlecturers)]
+        public async Task<IActionResult> UpdateLecturerDetail(string MaGiaoVien, [FromBody] LecturerUpdateModel model)
         {
             try
             {
@@ -70,8 +97,11 @@ namespace Duanmaulan4.Controllers
                 return StatusCode(500, new { Error = "Có lỗi xảy ra" });
             }
         }
+
         [HttpDelete("{MaGiaoVien}")]
-        public async Task<IActionResult> DeleteLecturer(int MaGiaoVien)
+        [Authorize(Roles = PhanQuyenViewModel.Role_Admin + "," + PhanQuyenViewModel.Role_Accounting + "," + PhanQuyenViewModel.Role_Director + "," + PhanQuyenViewModel.Role_Registration)]
+        [CustomAuthorization(PhanQuyenViewModel.Claim_Adddeleteeditlecturers)]
+        public async Task<IActionResult> DeleteLecturer(string MaGiaoVien)
         {
             var result = await _lecturerServices.DeleteLecturerAsync(MaGiaoVien);
 
@@ -84,106 +114,117 @@ namespace Duanmaulan4.Controllers
                 return BadRequest(new { Error = "Xóa giáo viên thất bại" });
             }
         }
-
         [HttpGet("lecturer-schedule/{maGiaoVien}")]
-        public async Task<IActionResult> GetLecturerSchedule(int maGiaoVien)
+        [Authorize(Roles = PhanQuyenViewModel.Role_Admin + "," + PhanQuyenViewModel.Role_Lecturer + "," + PhanQuyenViewModel.Role_Accounting + "," + PhanQuyenViewModel.Role_Director + "," + PhanQuyenViewModel.Role_Registration)]
+        [CustomAuthorization(PhanQuyenViewModel.Claim_Viewteachingschedule)]
+        public async Task<IActionResult> GetLecturerSchedule(string maGiaoVien)
         {
             var lecturerSchedule = await _lecturerServices.GetLecturerScheduleAsync(maGiaoVien);
             return Ok(lecturerSchedule);
         }
-
         [HttpGet("lecturers/schedules")]
-        public async Task<ActionResult<List<PhanCongViewModel>>> GetLecturerSchedules()
+        [Authorize(Roles = PhanQuyenViewModel.Role_Admin + "," + PhanQuyenViewModel.Role_Lecturer + "," + PhanQuyenViewModel.Role_Accounting + "," + PhanQuyenViewModel.Role_Director + "," + PhanQuyenViewModel.Role_Registration)]
+        [CustomAuthorization(PhanQuyenViewModel.Claim_Viewteachingschedule)]
+        public async Task<ActionResult<List<PhanCongViewModel2>>> GetLecturerSchedules()
         {
-            var schedules = await _lecturerServices.GetLecturerSchedulesAsync();
+            var schedules = await _lecturerServices.GetAllLecturersScheduleAsync();
             return Ok(schedules);
         }
 
-        [HttpPost("add-schedule/{maGiaoVien}")]
-        public async Task<IActionResult> AddLecturerSchedule(int maGiaoVien, [FromBody] LecturerScheduleModel model)
+        [HttpPost("add-teaching-schedule")]
+        [Authorize(Roles = PhanQuyenViewModel.Role_Admin + "," + PhanQuyenViewModel.Role_Accounting + "," + PhanQuyenViewModel.Role_Director + "," + PhanQuyenViewModel.Role_Registration)]
+        [CustomAuthorization(PhanQuyenViewModel.Claim_Adddeleteeditteachingschedule)]
+        public async Task<IActionResult> AddTeachingSchedule([FromBody] TeachingScheduleDTO scheduleDTO)
         {
-            var result = await _lecturerServices.AddLecturerScheduleAsync(maGiaoVien, model);
+            var result = await _lecturerServices.AddTeachingScheduleAsync(scheduleDTO);
 
             if (result)
             {
-                return Ok(new { Message = "Lịch giảng dạy đã được thêm." });
+                return Ok("Lịch giảng dạy đã được thêm.");
+            }
+
+            return BadRequest("Không thể thêm lịch giảng dạy.");
+        }
+
+        [HttpPost("add-teaching-schedule-detail/{maPhanCong}")]
+        [Authorize(Roles = PhanQuyenViewModel.Role_Admin + "," + PhanQuyenViewModel.Role_Accounting + "," + PhanQuyenViewModel.Role_Director + "," + PhanQuyenViewModel.Role_Registration)]
+        [CustomAuthorization(PhanQuyenViewModel.Claim_Adddeleteeditteachingschedule)]
+        public async Task<IActionResult> AddTeachingScheduleDetail(int maPhanCong, [FromBody] TeachingScheduleDetailDTO scheduleDetailDTO)
+        {
+            var success = await _lecturerServices.AddTeachingScheduleDetailAsync(maPhanCong, scheduleDetailDTO);
+
+            if (success)
+            {
+                return Ok(new { Message = "Lịch học đã được thêm mới thành công." });
             }
             else
             {
-                return BadRequest(new { Message = "Không thể thêm lịch giảng dạy." });
+                return BadRequest(new { Message = "Không thể thêm mới lịch học. MaPhanCong không hợp lệ." });
             }
         }
-
-        [HttpPost("add-lecturers-schedule")]
-        public async Task<IActionResult> AddLecturersSchedule([FromBody] LecturersScheduleModel model)
+        [HttpPut("updateTeachingScheduleDetail/{maLichHoc}")]
+        [Authorize(Roles = PhanQuyenViewModel.Role_Admin + "," + PhanQuyenViewModel.Role_Accounting + "," + PhanQuyenViewModel.Role_Director + "," + PhanQuyenViewModel.Role_Registration)]
+        [CustomAuthorization(PhanQuyenViewModel.Claim_Adddeleteeditteachingschedule)]
+        public async Task<IActionResult> UpdateTeachingScheduleDetail(int maLichHoc, [FromBody] TeachingScheduleDetailDTO updatedScheduleDetailDTO)
         {
-            try
-            {
-                var result = await _lecturerServices.AddLecturersScheduleAsync(model);
+            var success = await _lecturerServices.UpdateTeachingScheduleDetailAsync(maLichHoc, updatedScheduleDetailDTO);
 
-                if (result)
-                {
-                    return Ok(new { Message = "Lịch giảng dạy đã được thêm." });
-                }
-                else
-                {
-                    return BadRequest(new { Message = "Không thể thêm lịch giảng dạy." });
-                }
-            }
-            catch (Exception)
+            if (success)
             {
-                // Xử lý lỗi nếu có
-                return StatusCode(500, new { Error = "Có lỗi xảy ra" });
+                return Ok(new { Message = "Cập nhật lịch học thành công." });
+            }
+            else
+            {
+                return BadRequest(new { Message = "Không thể cập nhật lịch học. MaLichHoc không hợp lệ." });
             }
         }
 
-        [HttpPut("update-lecturer-schedule/{maPhanCong}")]
-        public async Task<IActionResult> UpdateLecturerSchedule(int maPhanCong, [FromBody] LecturersScheduleModel model)
+
+
+        [HttpPut("update-teaching-schedule")]
+        [Authorize(Roles = PhanQuyenViewModel.Role_Admin + "," + PhanQuyenViewModel.Role_Accounting + "," + PhanQuyenViewModel.Role_Director + "," + PhanQuyenViewModel.Role_Registration)]
+        [CustomAuthorization(PhanQuyenViewModel.Claim_Adddeleteeditteachingschedule)]
+        public async Task<IActionResult> UpdateTeachingScheduleAsync(int maPhanCong, [FromBody] TeachingScheduleUpdateDTO scheduleUpdateDTO)
         {
-            try
-            {
-                var result = await _lecturerServices.UpdateLecturerScheduleAsync(maPhanCong, model);
+            var result = await _lecturerServices.UpdateTeachingScheduleAsync(maPhanCong, scheduleUpdateDTO);
 
-                if (result)
-                {
-                    return Ok(new { Message = "Cập nhật lịch giảng dạy thành công." });
-                }
-                else
-                {
-                    return BadRequest(new { Message = "Không thể cập nhật lịch giảng dạy." });
-                }
-            }
-            catch (Exception)
+            if (result)
             {
-                // Xử lý lỗi nếu có
-                return StatusCode(500, new { Error = "Có lỗi xảy ra" });
+                return Ok("Lịch giảng dạy đã được cập nhật.");
             }
+
+            return BadRequest("Không thể cập nhật lịch giảng dạy.");
         }
-
-
-        [HttpDelete("delete-lecturer-schedule/{maPhanCong}")]
-        public async Task<IActionResult> DeleteLecturerSchedule(int maPhanCong)
+        [HttpDelete("deleteTeachingScheduleDetail/{maLichHoc}")]
+        [Authorize(Roles = PhanQuyenViewModel.Role_Admin + "," + PhanQuyenViewModel.Role_Accounting + "," + PhanQuyenViewModel.Role_Director + "," + PhanQuyenViewModel.Role_Registration)]
+        [CustomAuthorization(PhanQuyenViewModel.Claim_Adddeleteeditteachingschedule)]
+        public async Task<IActionResult> DeleteTeachingScheduleDetail(int maLichHoc)
         {
-            try
-            {
-                var result = await _lecturerServices.DeleteLecturerScheduleAsync(maPhanCong);
+            var success = await _lecturerServices.DeleteTeachingScheduleDetailAsync(maLichHoc);
 
-                if (result)
-                {
-                    return Ok(new { Message = "Xoá lịch giảng dạy thành công." });
-                }
-                else
-                {
-                    return BadRequest(new { Message = "Không thể xoá lịch giảng dạy." });
-                }
-            }
-            catch (Exception)
+            if (success)
             {
-                // Xử lý lỗi nếu có
-                return StatusCode(500, new { Error = "Có lỗi xảy ra" });
+                return Ok(new { Message = "Xóa lịch học thành công." });
+            }
+            else
+            {
+                return BadRequest(new { Message = "Không thể xóa lịch học. MaLichHoc không hợp lệ." });
             }
         }
-*/
 
+        [HttpDelete("delete-teaching-schedule")]
+        [Authorize(Roles = PhanQuyenViewModel.Role_Admin + "," + PhanQuyenViewModel.Role_Accounting + "," + PhanQuyenViewModel.Role_Director + "," + PhanQuyenViewModel.Role_Registration)]
+        [CustomAuthorization(PhanQuyenViewModel.Claim_Adddeleteeditteachingschedule)]
+        public async Task<IActionResult> DeleteTeachingSchedule(int maPhanCong)
+        {
+            var result = await _lecturerServices.DeleteTeachingScheduleAsync(maPhanCong);
+
+            if (result)
+            {
+                return Ok("Lịch giảng dạy đã được xóa.");
+            }
+
+            return BadRequest("Không thể xóa lịch giảng dạy.");
+        }
     }
 }

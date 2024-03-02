@@ -5,7 +5,7 @@ namespace Duanmaulan4.Services
 {
     public interface IAccountServices
     {
-        Task<IdentityResult> SignUpAsync(SignUpModel model, int maLop);
+        Task<IdentityResult> SignUpAsync(SignUpAdmin model);
         Task<string> SignInAsync(SignInModel model);
         Task SignOutAsync();
         Task<string> GeneratePasswordResetTokenAsync(string email);

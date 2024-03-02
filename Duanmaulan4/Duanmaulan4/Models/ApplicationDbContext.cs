@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Duanmaulan4.Seeder;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Duanmaulan4.Models
@@ -8,21 +9,13 @@ namespace Duanmaulan4.Models
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
-        }
 
+        }
         // DbSet cho từng lớp model
         public DbSet<DIEM> Diem { get; set; }
         public DbSet<GIAOVIEN> GiaoVien { get; set; }
-        public DbSet<HANHKIEM> HanhKiem { get; set; }
-        public DbSet<HOCKY> HocKy { get; set; }
-        public DbSet<HOCLUC> HocLuc { get; set; }
         public DbSet<HOCSINH> HocSinh { get; set; }
-        public DbSet<KETQUA> KetQua { get; set; }
         public DbSet<KHOAKHOI> KhoaKhoi { get; set; }
-        public DbSet<KQ_HOCSINH_CANAM> KqHocSinhCaNam { get; set; }
-        public DbSet<KQ_HOCSINH_MONHOC> KqHocSinhMonHoc { get; set; }
-        public DbSet<KQ_LOPHOC_HOCKY> KqLopHocHocky { get; set; }
-        public DbSet<KQ_LOPHOC_MONHOC> KqLopHocMonHoc { get; set; }
         public DbSet<LOAIDIEM> LoaiDiem { get; set; }
         public DbSet<LOAIHOCPHI> LoaiHocPhi { get; set; }
         public DbSet<LOP> Lop { get; set; }
@@ -32,6 +25,11 @@ namespace Duanmaulan4.Models
         public DbSet<PHANLOP> PhanLop { get; set; }
         public DbSet<THUHOCPHI> ThuHocPhi { get; set; }
         public DbSet<TOBOMON> ToBoMon { get; set; }
+        public DbSet<MonHocLoaiDiem> MonHocLoaiDiem { get; set; }
+        public DbSet<LICHNGHI> LichNghi { get; set; }
+        public DbSet<PHIEULUONG> PhieuLuong { get; set; }
+        public DbSet<LICHHOC> LichHoc { get; set; }
+
 
         // Override phương thức OnModelCreating để cấu hình mối quan hệ
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -57,16 +55,41 @@ namespace Duanmaulan4.Models
 
             modelBuilder.Entity<GIAOVIEN>()
               .HasOne(s => s.MonHoc)
-              .WithOne()
-              .HasForeignKey<GIAOVIEN>(s => s.MaMonHoc)
+              .WithMany()
+              .HasForeignKey(s => s.MaMonHoc)
+              .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PHIEULUONG>()
+               .HasOne(e => e.GiaoVien)
+               .WithMany()
+               .HasForeignKey(e => e.MaGiaoVien)
+               .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<LICHHOC>()
+              .HasOne(e => e.PhanCong)
+              .WithMany()
+              .HasForeignKey(e => e.MaPhanCong)
+              .OnDelete(DeleteBehavior.Restrict);
+
+
+            modelBuilder.Entity<MonHocLoaiDiem>()
+               .HasOne(e => e.MonHoc)
+               .WithMany()
+               .HasForeignKey(e => e.MaMonHoc)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<MonHocLoaiDiem>()
+              .HasOne(e => e.LoaiDiem)
+              .WithMany()
+              .HasForeignKey(e => e.MaLoaiDiem)
+              .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<MonHocLoaiDiem>()
+              .HasOne(e => e.NienKhoa)
+              .WithMany()
+              .HasForeignKey(e => e.MaNienKhoa)
               .OnDelete(DeleteBehavior.Restrict);
 
             // Cấu hình mối quan hệ 1-nhiều và khóa ngoại
-            modelBuilder.Entity<DIEM>()
-                .HasOne(e => e.HocKy)
-                .WithMany()
-                .HasForeignKey(e => e.MaHocKy)
-                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<DIEM>()
                 .HasOne(e => e.HocSinh)
                 .WithMany()
@@ -76,117 +99,18 @@ namespace Duanmaulan4.Models
                 .HasOne(e => e.MonHoc)
                 .WithMany()
                 .HasForeignKey(e => e.MaMonHoc)
-                .OnDelete(DeleteBehavior.Restrict); 
-            modelBuilder.Entity<DIEM>()
-                .HasOne(e => e.NienKhoa)
-                .WithMany()
-                .HasForeignKey(e => e.MaNienKhoa)
                 .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<DIEM>()
-                .HasOne(e => e.LoaiDiem)
-                .WithMany()
-                .HasForeignKey(e => e.MaLoai)
-                .OnDelete(DeleteBehavior.Restrict);
+                 .HasOne(e => e.LoaiDiem)
+                 .WithMany()
+                 .HasForeignKey(e => e.MaLoaiDiem)
+                 .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<DIEM>()
-                .HasOne(e => e.Lop)
+                .HasOne(e => e.PhanCong)
                 .WithMany()
-                .HasForeignKey(e => e.MaLop)
+                .HasForeignKey(e => e.MaPhanCong)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<KQ_HOCSINH_CANAM>()
-                .HasOne(e => e.HocSinh)
-                .WithMany()
-                .HasForeignKey(e => e.MaHocSinh)
-                .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<KQ_HOCSINH_CANAM>()
-                .HasOne(e => e.Lop)
-                .WithMany()
-                .HasForeignKey(e => e.MaLop)
-                .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<KQ_HOCSINH_CANAM>()
-                .HasOne(e => e.NienKhoa)
-                .WithMany()
-                .HasForeignKey(e => e.MaNienKhoa)
-                .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<KQ_HOCSINH_CANAM>()
-                .HasOne(e => e.HocLuc)
-                .WithMany()
-                .HasForeignKey(e => e.MaHocLuc)
-                .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<KQ_HOCSINH_CANAM>()
-                .HasOne(e => e.HanhKiem)
-                .WithMany()
-                .HasForeignKey(e => e.MaHanhKiem)
-                .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<KQ_HOCSINH_CANAM>()
-                .HasOne(e => e.KetQua)
-                .WithMany()
-                .HasForeignKey(e => e.MaKetQua)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<KQ_HOCSINH_MONHOC>()
-                .HasOne(e => e.HocSinh)
-                .WithMany()
-                .HasForeignKey(e => e.MaHocSinh)
-                .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<KQ_HOCSINH_MONHOC>()
-                .HasOne(e => e.Lop)
-                .WithMany()
-                .HasForeignKey(e => e.MaLop)
-    .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<KQ_HOCSINH_MONHOC>()
-                .HasOne(e => e.NienKhoa)
-                .WithMany()
-                .HasForeignKey(e => e.MaNienKhoa)
-    .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<KQ_HOCSINH_MONHOC>()
-                .HasOne(e => e.MonHoc)
-                .WithMany()
-                .HasForeignKey(e => e.MaMonHoc)
-    .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<KQ_HOCSINH_MONHOC>()
-                .HasOne(e => e.HocKy)
-                .WithMany()
-                .HasForeignKey(e => e.MaHocKy)
-    .OnDelete(DeleteBehavior.Restrict);
-
-            
-            modelBuilder.Entity<KQ_LOPHOC_HOCKY>()
-                .HasOne(e => e.Lop)
-                .WithMany()
-                .HasForeignKey(e => e.MaLop)
-    .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<KQ_LOPHOC_HOCKY>()
-                .HasOne(e => e.NienKhoa)
-                .WithMany()
-                .HasForeignKey(e => e.MaNienKhoa)
-    .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<KQ_LOPHOC_HOCKY>()
-                .HasOne(e => e.HocKy)
-                .WithMany()
-                .HasForeignKey(e => e.MaHocKy)
-    .OnDelete(DeleteBehavior.Restrict);
-           
-            modelBuilder.Entity<KQ_LOPHOC_MONHOC>()
-                .HasOne(e => e.Lop)
-                .WithMany()
-                .HasForeignKey(e => e.MaLop)
-    .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<KQ_LOPHOC_MONHOC>()
-                .HasOne(e => e.NienKhoa)
-                .WithMany()
-                .HasForeignKey(e => e.MaNienKhoa)
-    .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<KQ_LOPHOC_MONHOC>()
-                .HasOne(e => e.MonHoc)
-                .WithMany()
-                .HasForeignKey(e => e.MaMonHoc)
-    .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<KQ_LOPHOC_MONHOC>()
-                .HasOne(e => e.HocKy)
-                .WithMany()
-                .HasForeignKey(e => e.MaHocKy)
-    .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<LOP>()
                 .HasOne(e => e.KhoaKhoi)
@@ -231,16 +155,6 @@ namespace Duanmaulan4.Models
                 .WithMany()
                 .HasForeignKey(e => e.MaPhanCong)
     .OnDelete(DeleteBehavior.Restrict);
-            /*modelBuilder.Entity<PHANLOP>()
-                .HasOne(e => e.NienKhoa)
-                .WithMany()
-                .HasForeignKey(e => e.MaNienKhoa)
-    .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<PHANLOP>()
-                .HasOne(e => e.KhoaKhoi)
-                .WithMany()
-                .HasForeignKey(e => e.MaKhoaKhoi)
-    .OnDelete(DeleteBehavior.Restrict);*/
             modelBuilder.Entity<PHANLOP>()
                 .HasOne(e => e.HocSinh)
                 .WithMany()
@@ -263,20 +177,23 @@ namespace Duanmaulan4.Models
                 .HasForeignKey(e => e.MaHocSinh)
                 .OnDelete(DeleteBehavior.Restrict);
             // Thêm cấu hình cho các mối quan hệ khác
-            modelBuilder.Entity<KQ_HOCSINH_CANAM>()
-                .HasKey(kq => new { kq.MaHocSinh, kq.MaLop, kq.MaNienKhoa});
-
-            modelBuilder.Entity<KQ_HOCSINH_MONHOC>()
-               .HasKey(kq => new { kq.MaHocSinh, kq.MaLop, kq.MaNienKhoa, kq.MaMonHoc, kq.MaHocKy });
-            modelBuilder.Entity<KQ_LOPHOC_HOCKY>()
-               .HasKey(kq => new { kq.MaLop, kq.MaNienKhoa, kq.MaHocKy });
-            modelBuilder.Entity<KQ_LOPHOC_MONHOC>()
-               .HasKey(kq => new { kq.MaMonHoc, kq.MaLop, kq.MaNienKhoa, kq.MaHocKy });
 
             modelBuilder.Entity<PHANLOP>()
                .HasKey(kq => new { kq.MaHocSinh, kq.MaPhanCong });
 
+
             base.OnModelCreating(modelBuilder);
+        }
+        public void SeedData()
+        {
+            TOBOMONSeeder.SeedData(this);
+            NIENKHOASeeder.SeedData(this);
+            KHOAKHOISeeder.SeedData(this);
+            MONHOCSeeder.SeedData(this);
+            LOAIDIEMSeeder.SeedData(this);
+            LOAIHOCPHISeeder.SeedData(this);
+            LOPSeeder.SeedData(this);
+            MonHocLoaiDiemSeeder.SeedData(this);
         }
     }
 }

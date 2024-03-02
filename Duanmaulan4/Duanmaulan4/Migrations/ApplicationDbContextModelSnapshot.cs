@@ -47,6 +47,9 @@ namespace Duanmaulan4.Migrations
                     b.Property<string>("Ho")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -101,46 +104,36 @@ namespace Duanmaulan4.Migrations
 
             modelBuilder.Entity("Duanmaulan4.Models.DIEM", b =>
                 {
-                    b.Property<int>("STT")
+                    b.Property<int>("MaDiem")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("STT"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaDiem"), 1L, 1);
 
-                    b.Property<float>("Diem")
-                        .HasColumnType("real");
-
-                    b.Property<int>("MaHocKy")
-                        .HasColumnType("int");
+                    b.Property<string>("Diem")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MaHocSinh")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("MaLoai")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MaLop")
+                    b.Property<int>("MaLoaiDiem")
                         .HasColumnType("int");
 
                     b.Property<int>("MaMonHoc")
                         .HasColumnType("int");
 
-                    b.Property<int>("MaNienKhoa")
+                    b.Property<int>("MaPhanCong")
                         .HasColumnType("int");
 
-                    b.HasKey("STT");
-
-                    b.HasIndex("MaHocKy");
+                    b.HasKey("MaDiem");
 
                     b.HasIndex("MaHocSinh");
 
-                    b.HasIndex("MaLoai");
-
-                    b.HasIndex("MaLop");
+                    b.HasIndex("MaLoaiDiem");
 
                     b.HasIndex("MaMonHoc");
 
-                    b.HasIndex("MaNienKhoa");
+                    b.HasIndex("MaPhanCong");
 
                     b.ToTable("Diem");
                 });
@@ -191,74 +184,13 @@ namespace Duanmaulan4.Migrations
 
                     b.HasKey("MaGiaoVien");
 
-                    b.HasIndex("MaMonHoc")
-                        .IsUnique();
+                    b.HasIndex("MaMonHoc");
 
                     b.HasIndex("UserId")
                         .IsUnique()
                         .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("GiaoVien");
-                });
-
-            modelBuilder.Entity("Duanmaulan4.Models.HANHKIEM", b =>
-                {
-                    b.Property<int>("MaHanhKiem")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaHanhKiem"), 1L, 1);
-
-                    b.Property<string>("TenHanhKiem")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("MaHanhKiem");
-
-                    b.ToTable("HanhKiem");
-                });
-
-            modelBuilder.Entity("Duanmaulan4.Models.HOCKY", b =>
-                {
-                    b.Property<int>("MaHocKy")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaHocKy"), 1L, 1);
-
-                    b.Property<int>("HeSo")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TenHocKy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("MaHocKy");
-
-                    b.ToTable("HocKy");
-                });
-
-            modelBuilder.Entity("Duanmaulan4.Models.HOCLUC", b =>
-                {
-                    b.Property<int>("MaHocLuc")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaHocLuc"), 1L, 1);
-
-                    b.Property<int>("DiemCanDuoi")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DiemCanTren")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DiemKhongChe")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TenHocLuc")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("MaHocLuc");
-
-                    b.ToTable("HocLuc");
                 });
 
             modelBuilder.Entity("Duanmaulan4.Models.HOCSINH", b =>
@@ -313,22 +245,6 @@ namespace Duanmaulan4.Migrations
                     b.ToTable("HocSinh");
                 });
 
-            modelBuilder.Entity("Duanmaulan4.Models.KETQUA", b =>
-                {
-                    b.Property<int>("MaKetQua")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaKetQua"), 1L, 1);
-
-                    b.Property<string>("TenKetQua")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("MaKetQua");
-
-                    b.ToTable("KetQua");
-                });
-
             modelBuilder.Entity("Duanmaulan4.Models.KHOAKHOI", b =>
                 {
                     b.Property<int>("MaKhoaKhoi")
@@ -345,159 +261,71 @@ namespace Duanmaulan4.Migrations
                     b.ToTable("KhoaKhoi");
                 });
 
-            modelBuilder.Entity("Duanmaulan4.Models.KQ_HOCSINH_CANAM", b =>
+            modelBuilder.Entity("Duanmaulan4.Models.LICHHOC", b =>
                 {
-                    b.Property<string>("MaHocSinh")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("MaLop")
+                    b.Property<int>("MaLichHoc")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("MaNienKhoa")
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaLichHoc"), 1L, 1);
+
+                    b.Property<int>("MaPhanCong")
                         .HasColumnType("int");
 
-                    b.Property<float>("DiemTBCN")
-                        .HasColumnType("real");
-
-                    b.Property<float>("DiemTBHK1")
-                        .HasColumnType("real");
-
-                    b.Property<float>("DiemTBHK2")
-                        .HasColumnType("real");
-
-                    b.Property<int>("MaHanhKiem")
+                    b.Property<int?>("PHANCONGMaPhanCong")
                         .HasColumnType("int");
 
-                    b.Property<int>("MaHocLuc")
-                        .HasColumnType("int");
+                    b.Property<string>("PhongHoc")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("MaKetQua")
-                        .HasColumnType("int");
+                    b.Property<string>("ThoiGianHoc")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("MaHocSinh", "MaLop", "MaNienKhoa");
+                    b.Property<string>("Thu")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("MaHanhKiem");
+                    b.HasKey("MaLichHoc");
 
-                    b.HasIndex("MaHocLuc");
+                    b.HasIndex("MaPhanCong");
 
-                    b.HasIndex("MaKetQua");
+                    b.HasIndex("PHANCONGMaPhanCong");
 
-                    b.HasIndex("MaLop");
-
-                    b.HasIndex("MaNienKhoa");
-
-                    b.ToTable("KqHocSinhCaNam");
+                    b.ToTable("LichHoc");
                 });
 
-            modelBuilder.Entity("Duanmaulan4.Models.KQ_HOCSINH_MONHOC", b =>
+            modelBuilder.Entity("Duanmaulan4.Models.LICHNGHI", b =>
                 {
-                    b.Property<string>("MaHocSinh")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("MaLop")
+                    b.Property<int>("MaLichNghi")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("MaNienKhoa")
-                        .HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaLichNghi"), 1L, 1);
 
-                    b.Property<int>("MaMonHoc")
-                        .HasColumnType("int");
+                    b.Property<string>("LyDo")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("MaHocKy")
-                        .HasColumnType("int");
+                    b.Property<string>("TenLichNghi")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<float>("Diem15PhutTB")
-                        .HasColumnType("real");
+                    b.Property<DateTime>("ThoiGianBatDau")
+                        .HasColumnType("datetime2");
 
-                    b.Property<float>("Diem45PhutTB")
-                        .HasColumnType("real");
+                    b.Property<DateTime>("ThoiGianKetThuc")
+                        .HasColumnType("datetime2");
 
-                    b.Property<float>("DiemMiengTB")
-                        .HasColumnType("real");
+                    b.HasKey("MaLichNghi");
 
-                    b.Property<float>("DiemTBHK")
-                        .HasColumnType("real");
-
-                    b.Property<float>("DiemThi")
-                        .HasColumnType("real");
-
-                    b.HasKey("MaHocSinh", "MaLop", "MaNienKhoa", "MaMonHoc", "MaHocKy");
-
-                    b.HasIndex("MaHocKy");
-
-                    b.HasIndex("MaLop");
-
-                    b.HasIndex("MaMonHoc");
-
-                    b.HasIndex("MaNienKhoa");
-
-                    b.ToTable("KqHocSinhMonHoc");
-                });
-
-            modelBuilder.Entity("Duanmaulan4.Models.KQ_LOPHOC_HOCKY", b =>
-                {
-                    b.Property<int>("MaLop")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MaNienKhoa")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MaHocKy")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SoLuongDat")
-                        .HasColumnType("int");
-
-                    b.Property<float>("TiLe")
-                        .HasColumnType("real");
-
-                    b.HasKey("MaLop", "MaNienKhoa", "MaHocKy");
-
-                    b.HasIndex("MaHocKy");
-
-                    b.HasIndex("MaNienKhoa");
-
-                    b.ToTable("KqLopHocHocky");
-                });
-
-            modelBuilder.Entity("Duanmaulan4.Models.KQ_LOPHOC_MONHOC", b =>
-                {
-                    b.Property<int>("MaMonHoc")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MaLop")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MaNienKhoa")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MaHocKy")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SoLuongDat")
-                        .HasColumnType("int");
-
-                    b.Property<float>("TiLe")
-                        .HasColumnType("real");
-
-                    b.HasKey("MaMonHoc", "MaLop", "MaNienKhoa", "MaHocKy");
-
-                    b.HasIndex("MaHocKy");
-
-                    b.HasIndex("MaLop");
-
-                    b.HasIndex("MaNienKhoa");
-
-                    b.ToTable("KqLopHocMonHoc");
+                    b.ToTable("LichNghi");
                 });
 
             modelBuilder.Entity("Duanmaulan4.Models.LOAIDIEM", b =>
                 {
-                    b.Property<int>("MaLoai")
+                    b.Property<int>("MaLoaiDiem")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaLoai"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaLoaiDiem"), 1L, 1);
 
                     b.Property<int>("HeSo")
                         .HasColumnType("int");
@@ -505,7 +333,7 @@ namespace Duanmaulan4.Migrations
                     b.Property<string>("TenLoai")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("MaLoai");
+                    b.HasKey("MaLoaiDiem");
 
                     b.ToTable("LoaiDiem");
                 });
@@ -534,14 +362,23 @@ namespace Duanmaulan4.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaLop"), 1L, 1);
 
+                    b.Property<string>("Hinhanh")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("HocPhi")
                         .HasColumnType("int");
 
                     b.Property<int>("MaKhoaKhoi")
                         .HasColumnType("int");
 
-                    b.Property<int>("MaNienKhoa")
-                        .HasColumnType("int");
+                    b.Property<string>("MaLopPhu")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MaNienKhoa")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Mota")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SoLuongHocSinh")
                         .HasColumnType("int");
@@ -572,6 +409,9 @@ namespace Duanmaulan4.Migrations
                     b.Property<int>("MaKhoaKhoi")
                         .HasColumnType("int");
 
+                    b.Property<string>("MaMonHocPhu")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("MaToBoMon")
                         .HasColumnType("int");
 
@@ -587,13 +427,57 @@ namespace Duanmaulan4.Migrations
                     b.ToTable("MonHoc");
                 });
 
-            modelBuilder.Entity("Duanmaulan4.Models.NIENKHOA", b =>
+            modelBuilder.Entity("Duanmaulan4.Models.MonHocLoaiDiem", b =>
                 {
-                    b.Property<int>("MaNienKhoa")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaNienKhoa"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int?>("LOAIDIEMMaLoaiDiem")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MONHOCMaMonHoc")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaLoaiDiem")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaMonHoc")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MaNienKhoa")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("SoCotDiem")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SoCotDiemBatBuoc")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LOAIDIEMMaLoaiDiem");
+
+                    b.HasIndex("MONHOCMaMonHoc");
+
+                    b.HasIndex("MaLoaiDiem");
+
+                    b.HasIndex("MaMonHoc");
+
+                    b.HasIndex("MaNienKhoa");
+
+                    b.ToTable("MonHocLoaiDiem");
+                });
+
+            modelBuilder.Entity("Duanmaulan4.Models.NIENKHOA", b =>
+                {
+                    b.Property<string>("MaNienKhoa")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("MaNienKhoaPhu")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TenNienKhoa")
                         .HasColumnType("nvarchar(max)");
@@ -611,8 +495,11 @@ namespace Duanmaulan4.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaPhanCong"), 1L, 1);
 
-                    b.Property<string>("GioHoc")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("ChotDiem")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ChotLuong")
+                        .HasColumnType("bit");
 
                     b.Property<string>("MaGiaoVien")
                         .HasColumnType("nvarchar(450)");
@@ -623,16 +510,10 @@ namespace Duanmaulan4.Migrations
                     b.Property<int>("MaMonHoc")
                         .HasColumnType("int");
 
-                    b.Property<string>("NgayHoc")
+                    b.Property<string>("NgayBatDau")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PhongHoc")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ThoiGianBatDau")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ThoiGianKetThuc")
+                    b.Property<string>("NgayKetThuc")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("MaPhanCong");
@@ -665,6 +546,48 @@ namespace Duanmaulan4.Migrations
                     b.HasIndex("MaPhanCong");
 
                     b.ToTable("PhanLop");
+                });
+
+            modelBuilder.Entity("Duanmaulan4.Models.PHIEULUONG", b =>
+                {
+                    b.Property<int>("MaPhieuLuong")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaPhieuLuong"), 1L, 1);
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MaGiaoVien")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("MonKiemNghiem")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("NgayInPhieu")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("NgaySinh")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TenGiaoVien")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("TongDoanhThuKhoaHoc")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TongLuong")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("TrangThai")
+                        .HasColumnType("bit");
+
+                    b.HasKey("MaPhieuLuong");
+
+                    b.HasIndex("MaGiaoVien");
+
+                    b.ToTable("PhieuLuong");
                 });
 
             modelBuilder.Entity("Duanmaulan4.Models.THUHOCPHI", b =>
@@ -858,12 +781,6 @@ namespace Duanmaulan4.Migrations
 
             modelBuilder.Entity("Duanmaulan4.Models.DIEM", b =>
                 {
-                    b.HasOne("Duanmaulan4.Models.HOCKY", "HocKy")
-                        .WithMany()
-                        .HasForeignKey("MaHocKy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("Duanmaulan4.Models.HOCSINH", "HocSinh")
                         .WithMany()
                         .HasForeignKey("MaHocSinh")
@@ -871,13 +788,7 @@ namespace Duanmaulan4.Migrations
 
                     b.HasOne("Duanmaulan4.Models.LOAIDIEM", "LoaiDiem")
                         .WithMany()
-                        .HasForeignKey("MaLoai")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Duanmaulan4.Models.LOP", "Lop")
-                        .WithMany()
-                        .HasForeignKey("MaLop")
+                        .HasForeignKey("MaLoaiDiem")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -887,30 +798,26 @@ namespace Duanmaulan4.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Duanmaulan4.Models.NIENKHOA", "NienKhoa")
+                    b.HasOne("Duanmaulan4.Models.PHANCONG", "PhanCong")
                         .WithMany()
-                        .HasForeignKey("MaNienKhoa")
+                        .HasForeignKey("MaPhanCong")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("HocKy");
 
                     b.Navigation("HocSinh");
 
                     b.Navigation("LoaiDiem");
 
-                    b.Navigation("Lop");
-
                     b.Navigation("MonHoc");
 
-                    b.Navigation("NienKhoa");
+                    b.Navigation("PhanCong");
                 });
 
             modelBuilder.Entity("Duanmaulan4.Models.GIAOVIEN", b =>
                 {
                     b.HasOne("Duanmaulan4.Models.MONHOC", "MonHoc")
-                        .WithOne()
-                        .HasForeignKey("Duanmaulan4.Models.GIAOVIEN", "MaMonHoc")
+                        .WithMany()
+                        .HasForeignKey("MaMonHoc")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -942,160 +849,19 @@ namespace Duanmaulan4.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Duanmaulan4.Models.KQ_HOCSINH_CANAM", b =>
+            modelBuilder.Entity("Duanmaulan4.Models.LICHHOC", b =>
                 {
-                    b.HasOne("Duanmaulan4.Models.HANHKIEM", "HanhKiem")
+                    b.HasOne("Duanmaulan4.Models.PHANCONG", "PhanCong")
                         .WithMany()
-                        .HasForeignKey("MaHanhKiem")
+                        .HasForeignKey("MaPhanCong")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Duanmaulan4.Models.HOCLUC", "HocLuc")
-                        .WithMany()
-                        .HasForeignKey("MaHocLuc")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.HasOne("Duanmaulan4.Models.PHANCONG", null)
+                        .WithMany("LichHoc")
+                        .HasForeignKey("PHANCONGMaPhanCong");
 
-                    b.HasOne("Duanmaulan4.Models.HOCSINH", "HocSinh")
-                        .WithMany()
-                        .HasForeignKey("MaHocSinh")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Duanmaulan4.Models.KETQUA", "KetQua")
-                        .WithMany()
-                        .HasForeignKey("MaKetQua")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Duanmaulan4.Models.LOP", "Lop")
-                        .WithMany()
-                        .HasForeignKey("MaLop")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Duanmaulan4.Models.NIENKHOA", "NienKhoa")
-                        .WithMany()
-                        .HasForeignKey("MaNienKhoa")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("HanhKiem");
-
-                    b.Navigation("HocLuc");
-
-                    b.Navigation("HocSinh");
-
-                    b.Navigation("KetQua");
-
-                    b.Navigation("Lop");
-
-                    b.Navigation("NienKhoa");
-                });
-
-            modelBuilder.Entity("Duanmaulan4.Models.KQ_HOCSINH_MONHOC", b =>
-                {
-                    b.HasOne("Duanmaulan4.Models.HOCKY", "HocKy")
-                        .WithMany()
-                        .HasForeignKey("MaHocKy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Duanmaulan4.Models.HOCSINH", "HocSinh")
-                        .WithMany()
-                        .HasForeignKey("MaHocSinh")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Duanmaulan4.Models.LOP", "Lop")
-                        .WithMany()
-                        .HasForeignKey("MaLop")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Duanmaulan4.Models.MONHOC", "MonHoc")
-                        .WithMany()
-                        .HasForeignKey("MaMonHoc")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Duanmaulan4.Models.NIENKHOA", "NienKhoa")
-                        .WithMany()
-                        .HasForeignKey("MaNienKhoa")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("HocKy");
-
-                    b.Navigation("HocSinh");
-
-                    b.Navigation("Lop");
-
-                    b.Navigation("MonHoc");
-
-                    b.Navigation("NienKhoa");
-                });
-
-            modelBuilder.Entity("Duanmaulan4.Models.KQ_LOPHOC_HOCKY", b =>
-                {
-                    b.HasOne("Duanmaulan4.Models.HOCKY", "HocKy")
-                        .WithMany()
-                        .HasForeignKey("MaHocKy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Duanmaulan4.Models.LOP", "Lop")
-                        .WithMany()
-                        .HasForeignKey("MaLop")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Duanmaulan4.Models.NIENKHOA", "NienKhoa")
-                        .WithMany()
-                        .HasForeignKey("MaNienKhoa")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("HocKy");
-
-                    b.Navigation("Lop");
-
-                    b.Navigation("NienKhoa");
-                });
-
-            modelBuilder.Entity("Duanmaulan4.Models.KQ_LOPHOC_MONHOC", b =>
-                {
-                    b.HasOne("Duanmaulan4.Models.HOCKY", "HocKy")
-                        .WithMany()
-                        .HasForeignKey("MaHocKy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Duanmaulan4.Models.LOP", "Lop")
-                        .WithMany()
-                        .HasForeignKey("MaLop")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Duanmaulan4.Models.MONHOC", "MonHoc")
-                        .WithMany()
-                        .HasForeignKey("MaMonHoc")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Duanmaulan4.Models.NIENKHOA", "NienKhoa")
-                        .WithMany()
-                        .HasForeignKey("MaNienKhoa")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("HocKy");
-
-                    b.Navigation("Lop");
-
-                    b.Navigation("MonHoc");
-
-                    b.Navigation("NienKhoa");
+                    b.Navigation("PhanCong");
                 });
 
             modelBuilder.Entity("Duanmaulan4.Models.LOP", b =>
@@ -1109,8 +875,7 @@ namespace Duanmaulan4.Migrations
                     b.HasOne("Duanmaulan4.Models.NIENKHOA", "NienKhoa")
                         .WithMany()
                         .HasForeignKey("MaNienKhoa")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("KhoaKhoi");
 
@@ -1134,6 +899,40 @@ namespace Duanmaulan4.Migrations
                     b.Navigation("KhoaKhoi");
 
                     b.Navigation("ToBoMon");
+                });
+
+            modelBuilder.Entity("Duanmaulan4.Models.MonHocLoaiDiem", b =>
+                {
+                    b.HasOne("Duanmaulan4.Models.LOAIDIEM", null)
+                        .WithMany("MonHocLoaiDiems")
+                        .HasForeignKey("LOAIDIEMMaLoaiDiem");
+
+                    b.HasOne("Duanmaulan4.Models.MONHOC", null)
+                        .WithMany("MonHocLoaiDiems")
+                        .HasForeignKey("MONHOCMaMonHoc");
+
+                    b.HasOne("Duanmaulan4.Models.LOAIDIEM", "LoaiDiem")
+                        .WithMany()
+                        .HasForeignKey("MaLoaiDiem")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Duanmaulan4.Models.MONHOC", "MonHoc")
+                        .WithMany()
+                        .HasForeignKey("MaMonHoc")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Duanmaulan4.Models.NIENKHOA", "NienKhoa")
+                        .WithMany()
+                        .HasForeignKey("MaNienKhoa")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("LoaiDiem");
+
+                    b.Navigation("MonHoc");
+
+                    b.Navigation("NienKhoa");
                 });
 
             modelBuilder.Entity("Duanmaulan4.Models.PHANCONG", b =>
@@ -1179,6 +978,16 @@ namespace Duanmaulan4.Migrations
                     b.Navigation("HocSinh");
 
                     b.Navigation("PhanCong");
+                });
+
+            modelBuilder.Entity("Duanmaulan4.Models.PHIEULUONG", b =>
+                {
+                    b.HasOne("Duanmaulan4.Models.GIAOVIEN", "GiaoVien")
+                        .WithMany()
+                        .HasForeignKey("MaGiaoVien")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("GiaoVien");
                 });
 
             modelBuilder.Entity("Duanmaulan4.Models.THUHOCPHI", b =>
@@ -1256,6 +1065,21 @@ namespace Duanmaulan4.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Duanmaulan4.Models.LOAIDIEM", b =>
+                {
+                    b.Navigation("MonHocLoaiDiems");
+                });
+
+            modelBuilder.Entity("Duanmaulan4.Models.MONHOC", b =>
+                {
+                    b.Navigation("MonHocLoaiDiems");
+                });
+
+            modelBuilder.Entity("Duanmaulan4.Models.PHANCONG", b =>
+                {
+                    b.Navigation("LichHoc");
                 });
 #pragma warning restore 612, 618
         }

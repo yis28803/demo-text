@@ -1,10 +1,12 @@
-﻿using Duanmaulan4.DataView.Authentication;
+﻿using Duanmaulan4.Controllers;
+using Duanmaulan4.DataView.Authentication;
 using Duanmaulan4.DataView.QuanlygiaovienModels;
 using Duanmaulan4.DataView.QuanlyhocvienModels;
 using Duanmaulan4.Helpers;
 using Duanmaulan4.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Duanmaulan4.Services
 {
@@ -13,14 +15,17 @@ namespace Duanmaulan4.Services
         private readonly UserManager<ApplicationUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly ApplicationDbContext context;
+        private readonly ILogger<LecturersController> logger;
 
         public LecturerServices(UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            ILogger<LecturersController> logger)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
             this.context = context;
+            this.logger = logger;
         }
 
         public async Task<List<LecturerViewModel>> GetLecturersAsync()
@@ -29,8 +34,9 @@ namespace Duanmaulan4.Services
                 .Include(gv => gv.User) // Include the User (AspNetUser) navigation property
                 .Select(gv => new LecturerViewModel
                 {
-                    MaGiaoVien = gv.MaGiaoVien,
                     UserId = gv.UserId,
+                    MaGiaoVien = gv.MaGiaoVien,
+                    HinhAnh = gv.HinhAnh,
                     TenGiaoVien = gv.Ho + " " + gv.TenDemvaTen,
                     NgaySinh = gv.NgaySinh,
                     GioiTinh = gv.GioiTinh,
@@ -40,13 +46,43 @@ namespace Duanmaulan4.Services
                     MaMonHoc = gv.MaMonHoc,
                     MonKiemNhiem = gv.MonKiemNhiem,
                     MatKhau = gv.MatKhau,
-                    HinhAnh = gv.HinhAnh,
+                    
                     // Thêm các trường khác nếu cần
                 })
                 .ToListAsync();
 
             return lecturers;
         }
+        public async Task<List<LecturerViewModel>> GetLecturersAsync(string searchTerm)
+        {
+            var lecturers = await context.GiaoVien
+                .Include(gv => gv.User) // Include the User (AspNetUser) navigation property
+                .Where(gv =>
+                    gv.MaGiaoVien.Contains(searchTerm) || // Tìm kiếm theo MaGiaoVien
+                    (gv.Ho + " " + gv.TenDemvaTen).Contains(searchTerm) || // Tìm kiếm theo TenDemvaTen
+                    gv.Email.Contains(searchTerm) || // Tìm kiếm theo Email
+                    gv.DienThoai.Contains(searchTerm)) // Tìm kiếm theo DienThoai
+                .Select(gv => new LecturerViewModel
+                {
+                    UserId = gv.UserId,
+                    MaGiaoVien = gv.MaGiaoVien,
+                    HinhAnh = gv.HinhAnh,
+                    TenGiaoVien = gv.Ho + " " + gv.TenDemvaTen,
+                    NgaySinh = gv.NgaySinh,
+                    GioiTinh = gv.GioiTinh,
+                    Email = gv.Email,
+                    DienThoai = gv.DienThoai,
+                    DiaChi = gv.DiaChi,
+                    MaMonHoc = gv.MaMonHoc,
+                    MonKiemNhiem = gv.MonKiemNhiem,
+                    MatKhau = gv.MatKhau,
+                    // Thêm các trường khác nếu cần
+                })
+                .ToListAsync();
+
+            return lecturers;
+        }
+
         public async Task<IdentityResult> SignUpLecturerAsync(SignUpModelGiaoVien model, int maMonHoc)
         {
             var user = new ApplicationUser
@@ -81,8 +117,6 @@ namespace Duanmaulan4.Services
 
             return result;
         }
-
-
         private async Task AddLecturerInfoAsync(string userId, SignUpModelGiaoVien model, int maMonHoc)
         {
             var teacher = new GIAOVIEN
@@ -106,55 +140,49 @@ namespace Duanmaulan4.Services
             context.GiaoVien.Add(teacher);
             await context.SaveChangesAsync();
 
-            /*var phanCong = new PHANCONG
-            {
-                MaGiaoVien = teacher.MaGiaoVien, 
-            };
-
-            context.PhanCong.Add(phanCong);
-            await context.SaveChangesAsync();*/
         }
 
-
-
-
-        /*
-        public async Task<bool> UpdateLecturerDetailAsync(int MaGiaoVien, LecturerUpdateModel model)
+        public async Task<bool> UpdateLecturerDetailAsync(string maGiaoVien, LecturerUpdateModel model)
         {
             try
             {
-                var lecturer = await context.GiaoVien.FindAsync(MaGiaoVien);
+                // Lấy giáo viên từ mã giáo viên
+                var lecturer = await context.GiaoVien
+                    .Where(gv => gv.MaGiaoVien == maGiaoVien)
+                    .FirstOrDefaultAsync();
 
                 if (lecturer != null)
                 {
-                    // Cập nhật thông tin học sinh với dữ liệu từ model
-                    lecturer.TenGiaoVien = model.TenGiaoVien;
-                    lecturer.Diachi = model.Diachi;
-                    lecturer.Dienthoai = model.Dienthoai;
+                    // Cập nhật thông tin giáo viên
+                    lecturer.MaSoThue = model.MaSoThue;
+                    lecturer.Ho = model.Ho;
+                    lecturer.TenDemvaTen = model.TenDemvaTen;
+                    lecturer.NgaySinh = model.NgaySinh;
+                    lecturer.GioiTinh = model.GioiTinh;
+                    lecturer.Email = model.Email;
+                    lecturer.DienThoai = model.DienThoai;
+                    lecturer.DiaChi = model.DiaChi;
+                    lecturer.MaMonHoc = model.MaMonHoc;
+                    lecturer.MonKiemNhiem = model.MonKiemNhiem;
+                    lecturer.HinhAnh = model.HinhAnh;
 
+                    
                     // Lưu thay đổi vào cơ sở dữ liệu
                     await context.SaveChangesAsync();
 
-                    // Cập nhật thông tin User
-                    var user = await userManager.FindByIdAsync(lecturer.UserId);
-                    if (user != null)
-                    {
-                        user.FirstName = model.TenGiaoVien;
-                        await userManager.UpdateAsync(user);
-                    }
-
-                    return true;
+                    return true; // Cập nhật thành công
                 }
 
-                return false;
+                return false; // Không tìm thấy giáo viên
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Xử lý lỗi nếu có
-                return false;
+                logger.LogError(ex.Message);
+                return false; // Xử lý lỗi nếu có
             }
         }
-        public async Task<bool> DeleteLecturerAsync(int MaGiaoVien)
+
+        public async Task<bool> DeleteLecturerAsync(string MaGiaoVien)
         {
             try
             {
@@ -162,8 +190,13 @@ namespace Duanmaulan4.Services
 
                 if (lecturer != null)
                 {
-                    
-                    // Xóa thông tin học sinh
+                    // Kiểm tra xem có PhanCong liên kết không
+                    var phanCongRecords = context.PhanCong.Where(pc => pc.MaGiaoVien == MaGiaoVien);
+
+                    // Xóa các bản ghi PhanCong trước
+                    context.PhanCong.RemoveRange(phanCongRecords);
+
+                    // Xóa thông tin giáo viên
                     context.GiaoVien.Remove(lecturer);
 
                     // Xóa thông tin User
@@ -191,180 +224,281 @@ namespace Duanmaulan4.Services
                 return false;
             }
         }
-        public async Task<List<PhanCongViewModel>> GetLecturerScheduleAsync(int maGiaoVien)
-        {
-            var lecturerSchedule = await context.PhanCong
-                .Include(pc => pc.NamHoc)
-                .Include(pc => pc.Lop)
-                .Include(pc => pc.MonHoc)
-                .Where(pc => pc.MaGiaoVien == maGiaoVien)
-                .Select(pc => new PhanCongViewModel
-                {
-                    TenNamHoc = pc.NamHoc != null ? pc.NamHoc.TenNamHoc : null,
-                    TenLop = pc.Lop != null ? pc.Lop.TenLop : null,
-                    TenMonHoc = pc.MonHoc != null ? pc.MonHoc.TenMonHoc : null,
-                    ThoiGian = pc.ThoiGian,
-                    Ngay = pc.Ngay
-                    // Các trường khác nếu cần
-                })
-                .ToListAsync();
 
-            return lecturerSchedule;
-        }
 
-        public async Task<List<LecturerScheduleViewModel>> GetLecturerSchedulesAsync()
-        {
-            var schedules = await context.PhanCong
-                .Include(p => p.GiaoVien)
-                .Include(p => p.MonHoc)
-                .Include(p => p.Lop)
-                .Include(p => p.NamHoc)
-                .Select(p => new LecturerScheduleViewModel
-                {
-                    TenNamHoc = p.NamHoc != null ? p.NamHoc.TenNamHoc : null,
-                    TenLop = p.Lop != null ? p.Lop.TenLop : null,
-                    TenMonHoc = p.MonHoc != null ? p.MonHoc.TenMonHoc : null,
-                    TenGiaoVien = p.GiaoVien != null ? p.GiaoVien.TenGiaoVien : null,
-                    ThoiGian = p.ThoiGian,
-                    Ngay = p.Ngay,
-                    // Các trường khác nếu cần
-                })
-                .ToListAsync();
-
-            return schedules;
-        }
-        public async Task<bool> AddLecturerScheduleAsync(int maGiaoVien, LecturerScheduleModel model)
+        public async Task<List<PhanCongViewModel>> GetLecturerScheduleAsync(string maGiaoVien)
         {
             try
             {
-                // Kiểm tra xem giáo viên có tồn tại hay không
-                var lecturer = await context.GiaoVien.FindAsync(maGiaoVien);
-                if (lecturer == null)
-                {
-                    return false; // Giáo viên không tồn tại
-                }
+                var teachingSchedule = await context.PhanCong
+                    .Where(pc => pc.MaGiaoVien == maGiaoVien)
+                    .Join(context.LichHoc,
+                          pc => pc.MaPhanCong,
+                          lh => lh.MaPhanCong,
+                          (pc, lh) => new PhanCongViewModel
+                          {
+                              MaLichHoc = lh.MaLichHoc,
+                              MaMonHoc = pc.MonHoc.MaMonHoc,
+                              TenMonHoc = pc.MonHoc.TenMonHoc,
+                              TenLop = pc.Lop.TenLop,
+                              NgayBatDau = pc.NgayBatDau,
+                              NgayKetThuc = pc.NgayKetThuc,
+                              ThoiGianHoc = lh.ThoiGianHoc,
+                              PhongHoc = lh.PhongHoc,
+                              Thu = lh.Thu,
+                              // Các thuộc tính khác cần thiết
+                          })
+                    .ToListAsync();
 
-                // Kiểm tra xem lịch giảng dạy đã tồn tại hay chưa
-                var existingSchedule = await context.PhanCong
-                    .Where(pc => pc.MaGiaoVien == maGiaoVien && pc.ThoiGian == model.ThoiGian && pc.Ngay == model.Ngay)
-                    .FirstOrDefaultAsync();
+                return teachingSchedule;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+                throw; // Xử lý lỗi tùy theo yêu cầu của bạn
+            }
+        }
+        public async Task<List<PhanCongViewModel2>> GetAllLecturersScheduleAsync()
+        {
+            try
+            {
+                var teachingSchedule = await context.PhanCong
+            .Join(context.LichHoc,
+                  pc => pc.MaPhanCong,
+                  lh => lh.MaPhanCong,
+                  (pc, lh) => new PhanCongViewModel2
+                  {
+                      MaLichHoc = lh.MaLichHoc,
+                      MaMonHoc = pc.MonHoc.MaMonHoc,
+                      TenMonHoc = pc.MonHoc.TenMonHoc,
+                      TenLop = pc.Lop.TenLop,
+                      MaGiaoVien = pc.GiaoVien.MaGiaoVien,
+                      TenGiaoVien = pc.GiaoVien.Ho + " " + pc.GiaoVien.TenDemvaTen,
+                      NgayBatDau = pc.NgayBatDau,
+                      NgayKetThuc = pc.NgayKetThuc,
+                      ThoiGianHoc = lh.ThoiGianHoc,
+                      PhongHoc = lh.PhongHoc,
+                      Thu = lh.Thu,
+                      // Các thuộc tính khác cần thiết
+                  })
+            .ToListAsync();
 
-                if (existingSchedule != null)
-                {
-                    return false; // Lịch giảng dạy đã tồn tại
-                }
+                return teachingSchedule;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+                throw; // Xử lý lỗi tùy theo yêu cầu của bạn
+            }
 
-                // Tạo mới lịch giảng dạy
-                var newSchedule = new PHANCONG
+
+        }
+        
+        public async Task<bool> AddTeachingScheduleAsync(TeachingScheduleDTO scheduleDTO)
+        {
+            try
+            {
+                // Tạo mới bản ghi PhanCong
+                var phanCong = new PHANCONG
                 {
-                    MaGiaoVien = maGiaoVien,
-                    MaNamHoc = model.MaNamHoc,
-                    MaLop = model.MaLop,
-                    MaMonHoc = model.MaMonHoc,
-                    ThoiGian = model.ThoiGian,
-                    Ngay = model.Ngay
-                    // Các trường khác nếu cần
+                    MaLop = scheduleDTO.MaLop,
+                    MaMonHoc = scheduleDTO.MaMonHoc,
+                    MaGiaoVien = scheduleDTO.MaGiaoVien,
+                    NgayBatDau = scheduleDTO.NgayBatDau,
+                    NgayKetThuc = scheduleDTO.NgayKetThuc,
+                    ChotDiem = false,
+                    ChotLuong = false
                 };
 
-                // Thêm vào cơ sở dữ liệu
-                context.PhanCong.Add(newSchedule);
+                context.PhanCong.Add(phanCong);
                 await context.SaveChangesAsync();
+
+                // Lấy MaPhanCong của bản ghi PhanCong vừa thêm
+                var maPhanCong = phanCong.MaPhanCong;
+
+                // Tạo mới bản ghi LichHoc
+                var lichHoc = new LICHHOC
+                {
+                    MaPhanCong = maPhanCong,
+                    ThoiGianHoc = scheduleDTO.ThoiGianHoc,
+                    PhongHoc = scheduleDTO.PhongHoc,
+                    Thu = scheduleDTO.Thu
+                };
+
+                context.LichHoc.Add(lichHoc);
+                await context.SaveChangesAsync();
+
+                var existingClass = await context.Lop.FirstOrDefaultAsync(l => l.MaLop == scheduleDTO.MaLop);
+
+                if (existingClass != null)
+                {
+                    existingClass.TrangThai = true;
+                    await context.SaveChangesAsync();
+                }
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Xử lý lỗi nếu có
+                logger.LogError(ex.Message);
                 return false;
             }
         }
-
-
-
-        public async Task<bool> AddLecturersScheduleAsync(LecturersScheduleModel model)
+        public async Task<bool> AddTeachingScheduleDetailAsync(int maPhanCong, TeachingScheduleDetailDTO scheduleDetailDTO)
         {
             try
             {
-                if (await context.PhanCong
-                    .AnyAsync(pc => pc.MaGiaoVien == model.MaGiaoVien && pc.ThoiGian == model.ThoiGian && pc.Ngay == model.Ngay))
+                // Kiểm tra xem maPhanCong đã tồn tại chưa
+                var existingPhanCong = await context.PhanCong.FirstOrDefaultAsync(pc => pc.MaPhanCong == maPhanCong);
+
+                if (existingPhanCong == null)
+                {
+                    // Trả về false nếu maPhanCong không tồn tại
                     return false;
+                }
 
-                var newSchedule = new PHANCONG
+                // Tạo mới bản ghi LichHoc
+                var lichHoc = new LICHHOC
                 {
-                    MaGiaoVien = model.MaGiaoVien,
-                    MaNamHoc = model.MaNamHoc,
-                    MaLop = model.MaLop,
-                    MaMonHoc = model.MaMonHoc,
-                    ThoiGian = model.ThoiGian,
-                    Ngay = model.Ngay
+                    MaPhanCong = maPhanCong,
+                    ThoiGianHoc = scheduleDetailDTO.ThoiGianHoc,
+                    PhongHoc = scheduleDetailDTO.PhongHoc,
+                    Thu = scheduleDetailDTO.Thu
                 };
 
-                context.PhanCong.Add(newSchedule);
+                context.LichHoc.Add(lichHoc);
                 await context.SaveChangesAsync();
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex.Message);
                 return false;
             }
         }
-
-        public async Task<bool> UpdateLecturerScheduleAsync(int maPhanCong, LecturersScheduleModel model)
+        public async Task<bool> UpdateTeachingScheduleDetailAsync(int maLichHoc, TeachingScheduleDetailDTO updatedScheduleDetailDTO)
         {
             try
             {
-                // Kiểm tra xem phân công có tồn tại hay không
-                var existingSchedule = await context.PhanCong.FindAsync(maPhanCong);
+                // Kiểm tra xem maLichHoc đã tồn tại chưa
+                var existingLichHoc = await context.LichHoc.FirstOrDefaultAsync(lh => lh.MaLichHoc == maLichHoc);
 
-                if (existingSchedule == null)
+                if (existingLichHoc == null)
                 {
-                    return false; // Lịch giảng dạy không tồn tại
+                    // Trả về false nếu maLichHoc không tồn tại
+                    return false;
                 }
 
-                // Kiểm tra xem lịch giảng dạy đã tồn tại hay chưa
-                var isExistingSchedule = await context.PhanCong
-                    .AnyAsync(pc => pc.ThoiGian == model.ThoiGian && pc.Ngay == model.Ngay && pc.STT != maPhanCong);
-
-                if (isExistingSchedule)
-                {
-                    return false; // Lịch giảng dạy đã tồn tại
-                }
-
-                // Cập nhật thông tin lịch giảng dạy
-                existingSchedule.MaNamHoc = model.MaNamHoc;
-                existingSchedule.MaLop = model.MaLop;
-                existingSchedule.MaMonHoc = model.MaMonHoc;
-                existingSchedule.MaGiaoVien = model.MaGiaoVien;
-                existingSchedule.ThoiGian = model.ThoiGian;
-                existingSchedule.Ngay = model.Ngay;
+                // Cập nhật thông tin lịch học
+                existingLichHoc.ThoiGianHoc = updatedScheduleDetailDTO.ThoiGianHoc;
+                existingLichHoc.PhongHoc = updatedScheduleDetailDTO.PhongHoc;
+                existingLichHoc.Thu = updatedScheduleDetailDTO.Thu;
 
                 // Lưu thay đổi vào cơ sở dữ liệu
                 await context.SaveChangesAsync();
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Xử lý lỗi nếu có
+                logger.LogError(ex.Message);
                 return false;
             }
         }
 
-        public async Task<bool> DeleteLecturerScheduleAsync(int maPhanCong)
+
+
+        public async Task<bool> UpdateTeachingScheduleAsync(int maPhanCong, TeachingScheduleUpdateDTO scheduleUpdateDTO)
         {
             try
             {
-                var schedule = await context.PhanCong.FindAsync(maPhanCong);
+                var phanCong = await context.PhanCong.FindAsync(maPhanCong);
 
-                if (schedule != null)
+                if (phanCong != null)
                 {
-                    context.PhanCong.Remove(schedule);
+                    // Cập nhật thông tin lịch giảng dạy
+                    phanCong.MaLop = scheduleUpdateDTO.MaLop;
+                    phanCong.MaMonHoc = scheduleUpdateDTO.MaMonHoc;
+                    phanCong.MaGiaoVien = scheduleUpdateDTO.MaGiaoVien;
+                    phanCong.NgayBatDau = scheduleUpdateDTO.NgayBatDau;
+                    phanCong.NgayKetThuc = scheduleUpdateDTO.NgayKetThuc;
+
+                    // Lưu thay đổi vào cơ sở dữ liệu
                     await context.SaveChangesAsync();
+
+                    // Cập nhật thông tin lịch học
+                    var lichHoc = await context.LichHoc.FindAsync(phanCong.MaPhanCong);
+
+                    if (lichHoc != null)
+                    {
+                        lichHoc.PhongHoc = scheduleUpdateDTO.PhongHoc;
+                        lichHoc.Thu = scheduleUpdateDTO.Thu;
+                        lichHoc.ThoiGianHoc = scheduleUpdateDTO.ThoiGianHoc;
+
+                        // Lưu thay đổi vào cơ sở dữ liệu
+                        await context.SaveChangesAsync();
+                    }
+
+                    return true; // Cập nhật thành công
+                }
+
+                return false; // Không tìm thấy lịch giảng dạy
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+                return false; // Xử lý lỗi nếu có
+            }
+        }
+
+        public async Task<bool> DeleteTeachingScheduleDetailAsync(int maLichHoc)
+        {
+            try
+            {
+                // Kiểm tra xem maLichHoc đã tồn tại chưa
+                var existingLichHoc = await context.LichHoc.FirstOrDefaultAsync(lh => lh.MaLichHoc == maLichHoc);
+
+                if (existingLichHoc == null)
+                {
+                    // Trả về false nếu maLichHoc không tồn tại
+                    return false;
+                }
+
+                // Xóa lịch học
+                context.LichHoc.Remove(existingLichHoc);
+
+                // Lưu thay đổi vào cơ sở dữ liệu
+                await context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+                return false;
+            }
+        }
+
+
+
+        public async Task<bool> DeleteTeachingScheduleAsync(int maPhanCong)
+        {
+            try
+            {
+                // Kiểm tra xem lịch giảng dạy có tồn tại hay không
+                var scheduleToDelete = await context.PhanCong.FindAsync(maPhanCong);
+
+                if (scheduleToDelete != null)
+                {
+                    // Xóa lịch giảng dạy
+                    context.PhanCong.Remove(scheduleToDelete);
+                    await context.SaveChangesAsync();
+
                     return true;
                 }
 
-                return false;
+                return false; // Lịch giảng dạy không tồn tại
             }
             catch (Exception)
             {
@@ -372,9 +506,5 @@ namespace Duanmaulan4.Services
                 return false;
             }
         }
-
-
-*/
-
     }
 }

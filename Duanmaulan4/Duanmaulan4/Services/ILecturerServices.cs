@@ -8,20 +8,18 @@ namespace Duanmaulan4.Services
     public interface ILecturerServices
     {
         Task<List<LecturerViewModel>> GetLecturersAsync();
+        Task<List<LecturerViewModel>> GetLecturersAsync(string searchTerm);
         Task<IdentityResult> SignUpLecturerAsync(SignUpModelGiaoVien model, int maMonHoc);
-       /* Task<bool> UpdateLecturerDetailAsync(int MaGiaoVien, LecturerUpdateModel model);
-        Task<bool> DeleteLecturerAsync(int MaGiaoVien);
-        Task<List<PhanCongViewModel>> GetLecturerScheduleAsync(int maGiaoVien);
-        Task<List<LecturerScheduleViewModel>> GetLecturerSchedulesAsync();
-        Task<bool> AddLecturerScheduleAsync(int maGiaoVien, LecturerScheduleModel model);
-        Task<bool> AddLecturersScheduleAsync(LecturersScheduleModel model);
-        Task<bool> UpdateLecturerScheduleAsync(int maPhanCong, LecturersScheduleModel model);
-        Task<bool> DeleteLecturerScheduleAsync(int maPhanCong);*/
+        Task<bool> UpdateLecturerDetailAsync(string MaGiaoVien, LecturerUpdateModel model);
+        Task<bool> DeleteLecturerAsync(string MaGiaoVien);
+        Task<List<PhanCongViewModel>> GetLecturerScheduleAsync(string maGiaoVien);
+        Task<List<PhanCongViewModel2>> GetAllLecturersScheduleAsync();
+        Task<bool> AddTeachingScheduleAsync(TeachingScheduleDTO scheduleDTO);
+        Task<bool> AddTeachingScheduleDetailAsync(int maPhanCong, TeachingScheduleDetailDTO scheduleDetailDTO);
+        Task<bool> UpdateTeachingScheduleDetailAsync(int maLichHoc, TeachingScheduleDetailDTO updatedScheduleDetailDTO);
 
-
-
-
-
-        // Thêm các phương thức khác nếu cần
+        Task<bool> UpdateTeachingScheduleAsync(int maPhanCong, TeachingScheduleUpdateDTO scheduleUpdateDTO);
+        Task<bool> DeleteTeachingScheduleDetailAsync(int maLichHoc);
+        Task<bool> DeleteTeachingScheduleAsync(int maPhanCong);
     }
 }

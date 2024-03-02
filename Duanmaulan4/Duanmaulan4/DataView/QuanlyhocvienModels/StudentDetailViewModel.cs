@@ -8,9 +8,10 @@
         public string? TenDemvaTen { get; set; }
         public DateTime NgaySinh { get; set; }
         public string? DiaChi { get; set; }
+        public string? Email { get; set; }
+
         // Thêm các thuộc tính khác của HocSinh cần lấy
-        public List<TKBViewModel>? PhanLop { get; set; }
-        // Các thuộc tính khác nếu cần
+        public List<TKBViewModel2>? PhanLop { get; set; }
     }
 
 }

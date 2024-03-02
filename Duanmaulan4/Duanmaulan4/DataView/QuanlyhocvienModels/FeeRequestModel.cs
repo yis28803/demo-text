@@ -2,10 +2,11 @@
 {
     public class FeeRequestModel
     {
-        public int StudentId { get; set; }
-        public int ClassId { get; set; }
-        public string? FeeType { get; set; }
-        public decimal Amount { get; set; }
-        // Thêm các trường thông tin khác nếu cần
+        public string? MaHocSinh { get; set; }
+        public int MaPhanCong { get; set; }
+        public int MaloaiHocPhi { get; set; }
+        public decimal MucThuPhi { get; set; }
+        public decimal GiamGia { get; set; }
+        public string? GhiChu { get; set; }
     }
 }

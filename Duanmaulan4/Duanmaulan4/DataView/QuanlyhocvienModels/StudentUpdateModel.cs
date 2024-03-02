@@ -2,6 +2,7 @@
 {
     public class StudentUpdateModel
     {
+        public string? MaHocSinh { get; set; }
         public string? Ho { get; set; }
         public string? TenDemvaTen { get; set; }
         public DateTime NgaySinh { get; set; }
@@ -10,7 +11,8 @@
         public string? DienThoai { get; set; }
         public string? DiaChi { get; set; }
         public string? HoTenPhuHuynh { get; set; }
-        public string? MatKhau { get; set; }
         public string? HinhAnh { get; set; }
+        public int? MaPhanCong { get; set; }
     }
+
 }

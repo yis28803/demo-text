@@ -22,11 +22,12 @@ namespace Duanmaulan4.Controllers
         }
 
         [HttpPost("signup")]
-        public async Task<IActionResult> SignUp([FromBody] SignUpModel model, int maLop)
+        [Authorize(Roles = PhanQuyenViewModel.Role_Admin + "," + PhanQuyenViewModel.Role_Accounting + "," + PhanQuyenViewModel.Role_Director + "," + PhanQuyenViewModel.Role_Registration)]
+        public async Task<IActionResult> SignUp([FromBody] SignUpAdmin model)
         {
             if (ModelState.IsValid)
             {
-                var result = await accountRepository.SignUpAsync(model, maLop);
+                var result = await accountRepository.SignUpAsync(model);
                 if (result.Succeeded)
                 {
                     return Ok(new { Message = "Đăng ký thành công!" });
@@ -38,7 +39,6 @@ namespace Duanmaulan4.Controllers
             }
             return BadRequest(new { Error = "Dữ liệu không hợp lệ" });
         }
-
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn([FromBody] SignInModel signInModel)
         {
@@ -57,8 +57,64 @@ namespace Duanmaulan4.Controllers
             return BadRequest(new { Error = "Dữ liệu không hợp lệ" });
         }
 
+        [HttpPost("signin_admin")]
+        [Authorize(Roles = PhanQuyenViewModel.Role_Admin + "," + PhanQuyenViewModel.Role_Accounting + "," + PhanQuyenViewModel.Role_Director + "," + PhanQuyenViewModel.Role_Registration)]
+        public async Task<IActionResult> SignIn_Admin([FromBody] SignInModel signInModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var token = await accountRepository.SignInAsync(signInModel);
+                if (!string.IsNullOrEmpty(token))
+                {
+                    return Ok(new { Token = token });
+                }
+                else
+                {
+                    return Unauthorized(new { Error = "Đăng nhập không thành công" });
+                }
+            }
+            return BadRequest(new { Error = "Dữ liệu không hợp lệ" });
+        }
+        [HttpPost("signin_lecturer")]
+        [Authorize(Roles = PhanQuyenViewModel.Role_Lecturer)]
+        public async Task<IActionResult> SignIn_Lecturer([FromBody] SignInModel signInModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var token = await accountRepository.SignInAsync(signInModel);
+                if (!string.IsNullOrEmpty(token))
+                {
+                    return Ok(new { Token = token });
+                }
+                else
+                {
+                    return Unauthorized(new { Error = "Đăng nhập không thành công" });
+                }
+            }
+            return BadRequest(new { Error = "Dữ liệu không hợp lệ" });
+        }
+        [HttpPost("signin_student")]
+        [Authorize(Roles = PhanQuyenViewModel.Role_Student)]
+        public async Task<IActionResult> SignIn_Student([FromBody] SignInModel signInModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var token = await accountRepository.SignInAsync(signInModel);
+                if (!string.IsNullOrEmpty(token))
+                {
+                    return Ok(new { Token = token });
+                }
+                else
+                {
+                    return Unauthorized(new { Error = "Đăng nhập không thành công" });
+                }
+            }
+            return BadRequest(new { Error = "Dữ liệu không hợp lệ" });
+        }
+
         [HttpPost("signout")]
-        [Authorize]
+        /*[Authorize]*/
+        [Authorize(Roles = PhanQuyenViewModel.Role_Admin + "," + PhanQuyenViewModel.Role_Lecturer + "," + PhanQuyenViewModel.Role_Student)]
         public async Task<IActionResult> SignOutAsync()
         {
             try
@@ -76,6 +132,7 @@ namespace Duanmaulan4.Controllers
 
 
         [HttpPost("forgot-password")]
+        [Authorize(Roles = PhanQuyenViewModel.Role_Admin + "," + PhanQuyenViewModel.Role_Lecturer + "," + PhanQuyenViewModel.Role_Accounting + "," + PhanQuyenViewModel.Role_Director + "," + PhanQuyenViewModel.Role_Registration)]
         public async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordModel model)
         {
             var token = await accountRepository.GeneratePasswordResetTokenAsync(model.Email);
@@ -106,6 +163,7 @@ namespace Duanmaulan4.Controllers
         }
 
         [HttpPost("reset-password")]
+        [Authorize(Roles = PhanQuyenViewModel.Role_Admin + "," + PhanQuyenViewModel.Role_Lecturer + "," + PhanQuyenViewModel.Role_Accounting + "," + PhanQuyenViewModel.Role_Director + "," + PhanQuyenViewModel.Role_Registration)]
         public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordModel model)
         {
             try

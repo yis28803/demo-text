@@ -35,74 +35,37 @@ namespace Duanmaulan4.Services
             this.logger = logger;
             this.context = context;
         }
-        public async Task<IdentityResult> SignUpAsync(SignUpModel model, int MaPhanCong)
+        public async Task<IdentityResult> SignUpAsync(SignUpAdmin model)
         {
+            // Tạo một đối tượng ApplicationUser từ dữ liệu đăng ký
             var user = new ApplicationUser
             {
                 Ho = model.Ho,
                 TenDemvaTen = model.TenDemvaTen,
                 Email = model.Email,
-                DienThoai = model.DienThoai,
-                UserName = model.Email
+                UserName = model.Email,
+                ImageUrl = model.ImageUrl
             };
 
+            // Thực hiện đăng ký người dùng
             var result = await userManager.CreateAsync(user, model.Password);
 
+            // Nếu đăng ký thành công
             if (result.Succeeded)
             {
-                // Kiểm tra role Student đã có
-                if (!await roleManager.RoleExistsAsync(AppRole.Student))
+                // Kiểm tra và thêm vai trò Admin nếu chưa có
+                if (!await roleManager.RoleExistsAsync(PhanQuyenViewModel.Role_Admin))
                 {
-                    await roleManager.CreateAsync(new IdentityRole(AppRole.Student));
+                    await roleManager.CreateAsync(new IdentityRole(PhanQuyenViewModel.Role_Admin));
                 }
 
-                await userManager.AddToRoleAsync(user, AppRole.Student);
-
-                // Kiểm tra xem vai trò có phải là Student hay không
-                var userRoles = await userManager.GetRolesAsync(user);
-                if (userRoles.Contains(AppRole.Student))
-                {
-                    // Thêm thông tin người dùng vào bảng Student
-                    await AddStudentInfoAsync(user.Id, model.Email, model.GioiTinh, MaPhanCong, model.NgaySinh, model.MaHocSinh, model.Ho, model.TenDemvaTen);
-                }
+                // Thêm người dùng vào vai trò Admin
+                await userManager.AddToRoleAsync(user, PhanQuyenViewModel.Role_Admin);
             }
 
+            // Trả về kết quả của quá trình đăng ký
             return result;
         }
-
-        private async Task AddStudentInfoAsync(string userId, string email, bool gioiTinh, int MaPhanCong, DateTime ngaySinh, string maHocSinh, string Ho, string TenDemvaTen)
-        {
-            var student = new HOCSINH
-            {
-                UserId = userId,
-                GioiTinh = gioiTinh,
-                Email = email,
-                MaPhanCong = MaPhanCong,
-                NgaySinh = ngaySinh,
-                MaHocSinh = maHocSinh, 
-                Ho = Ho,
-                TenDemvaTen = TenDemvaTen
-            };
-
-            context.HocSinh.Add(student);
-            await context.SaveChangesAsync();
-
-            // Thêm thông tin vào bảng PHANLOP
-            var phanLop = new PHANLOP
-            {
-                MaHocSinh = student.MaHocSinh,
-                TinhTrangHocPhi = false,
-                MaPhanCong = MaPhanCong
-            };
-
-            context.PhanLop.Add(phanLop);
-            await context.SaveChangesAsync();
-        }
-
-
-
-
-        
         public async Task<string> SignInAsync(SignInModel model)
         {
             var user = await userManager.FindByEmailAsync(model.Email);
@@ -140,12 +103,10 @@ namespace Duanmaulan4.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
         public async Task SignOutAsync()
         {
             await signInManager.SignOutAsync();
         }
-
 
         public async Task<string> GeneratePasswordResetTokenAsync(string email)
         {
@@ -181,9 +142,6 @@ namespace Duanmaulan4.Services
                 throw new Exception("Failed to reset password.");
             }
         }
-        
-
-
         public async Task SendMail(MailContent mailContent)
         {
             var email = new MimeMessage();
